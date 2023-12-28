@@ -1,9 +1,9 @@
-import 'package:flutter_101_app/src/models/status.dart';
+import 'status.dart';
 
 import 'values.dart';
 
 class ReferenceTable {
-  List<ReferenceTableEntry> _entries;
+  final List<ReferenceTableEntry> _entries;
 
   ReferenceTable(this._entries);
 
@@ -23,10 +23,10 @@ class ReferenceTable {
 }
 
 class ReferenceTableEntry {
-  Value _uncertainty;
-  Value _complexity;
-  Value _effort;
-  StoryPoints _storyPoints;
+  final Value _uncertainty;
+  final Value _complexity;
+  final Value _effort;
+  final StoryPoints _storyPoints;
 
   ReferenceTableEntry(
       this._uncertainty, this._complexity, this._effort, this._storyPoints);

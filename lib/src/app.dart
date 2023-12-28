@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_101_app/src/blocs/sizing.dart';
-import 'package:flutter_101_app/src/models/reference_table.dart';
-import 'package:flutter_101_app/src/models/status.dart';
-import 'package:flutter_101_app/src/models/values.dart';
+import 'package:flutter/services.dart';
+import 'blocs/sizing.dart';
+import 'models/reference_table.dart';
+import 'models/status.dart';
+import 'models/values.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,8 +12,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.light(),
+      title: 'Size Point sizing Cheat Sheet',
+      theme: ThemeData(
+          useMaterial3: true,
+
+          // Define the default brightness and colors.
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            brightness: Brightness.light,
+          ),
+          appBarTheme: const AppBarTheme(color: Colors.blue)),
       home: const MyHomePage(title: 'Story Point sizing'),
     );
   }
@@ -77,47 +86,105 @@ class MyHomePage extends StatelessWidget {
 
   _renderStatus(BuildContext context, Status status) {
     return Container(
-      margin: const EdgeInsets.all(30),
-      child: Column(
-        children: [
-          _renderDropdown(
-              context,
-              "Uncertainty:",
-              _renderDropdownMenuItems(
-                  [Value.small, Value.medium, Value.large]),
-              status.currentSelection.selectedUncertainty,
-              (value) => sizingBloc.updateCurrentSelection(
-                  status.currentSelection.withUncertainty(value))),
-          _renderDropdown(
-              context,
-              "Complexity:",
-              _renderDropdownMenuItems(status.compatibleComplexity().toList()),
-              status.currentSelection.selectedComplexity,
-              (value) => sizingBloc.updateCurrentSelection(
-                  status.currentSelection.withComplexity(value))),
-          _renderDropdown(
-              context,
-              "Effort:",
-              _renderDropdownMenuItems(status.compatibleEffort().toList()),
-              status.currentSelection.selectedEffort,
-              (value) => sizingBloc.updateCurrentSelection(
-                  status.currentSelection.withEffort(value))),
-          Row(
-            children: [
-              const Text("Story points:"),
-              status.currentSelection.isComplete()
-                  ? Text(
-                      table
-                          .resolveStoryPoints(status.currentSelection)
-                          .toString(),
+        margin: const EdgeInsets.all(15),
+        child: _renderRowOrColumn(
+          context,
+          [
+            Container(
+              margin: const EdgeInsets.all(15),
+              child: Column(
+                children: [
+                  _renderDropdown(
+                      context,
+                      "Uncertainty",
+                      _renderDropdownMenuItems(
+                          [Value.small, Value.medium, Value.large]),
+                      status.currentSelection.selectedUncertainty,
+                      (value) => sizingBloc.updateCurrentSelection(
+                          status.currentSelection.withUncertainty(value))),
+                  _renderDropdown(
+                      context,
+                      "Complexity",
+                      _renderDropdownMenuItems(
+                          status.compatibleComplexity().toList()),
+                      status.currentSelection.selectedComplexity,
+                      (value) => sizingBloc.updateCurrentSelection(
+                          status.currentSelection.withComplexity(value))),
+                  _renderDropdown(
+                      context,
+                      "Effort",
+                      _renderDropdownMenuItems(
+                          status.compatibleEffort().toList()),
+                      status.currentSelection.selectedEffort,
+                      (value) => sizingBloc.updateCurrentSelection(
+                          status.currentSelection.withEffort(value))),
+                ],
+              ),
+            ),
+            _renderStoryPoints(context, status.currentSelection)
+          ],
+        ));
+  }
+
+  _renderRowOrColumn(BuildContext context, List<Widget> children) {
+    if (MediaQuery.of(context).size.width > 550) {
+      return SizedBox(
+          height: 175,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: children,
+          ));
+    }
+
+    return SizedBox(
+        width: 300,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: children,
+        ));
+  }
+
+  _renderStoryPoints(BuildContext context, CurrentSelection currentSelection) {
+    if (!currentSelection.isComplete()) {
+      return const SizedBox();
+    }
+    final storyPoints = table.resolveStoryPoints(currentSelection).toString();
+    return Container(
+        margin: const EdgeInsets.only(left: 15),
+        child: SizedBox(
+            width: 200,
+            height: 100,
+            child: Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Theme.of(context).secondaryHeaderColor,
+                borderRadius: const BorderRadius.all(Radius.circular(15)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                      margin: const EdgeInsets.only(bottom: 7),
+                      child: Text(
+                        "Story points:",
+                        style: Theme.of(context).textTheme.titleLarge,
+                      )),
+                  TextButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: storyPoints));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Value copied to Clipboard'),
+                      ));
+                    },
+                    child: Text(
+                      storyPoints,
                       style: Theme.of(context).textTheme.titleLarge,
-                    )
-                  : const Text("N/A")
-            ],
-          )
-        ],
-      ),
-    );
+                    ),
+                  )
+                ],
+              ),
+            )));
   }
 
   _renderDropdown(
@@ -128,12 +195,15 @@ class MyHomePage extends StatelessWidget {
       void Function(dynamic value) onChanged) {
     return Row(
       children: [
-        Text(label),
-        DropdownButton<Value>(
-          items: items,
-          value: value,
-          onChanged: onChanged,
-        )
+        SizedBox(width: 100, child: Text("$label:")),
+        SizedBox(
+            width: 150,
+            child: DropdownButton<Value>(
+                isExpanded: true,
+                items: items,
+                value: value,
+                onChanged: onChanged,
+                hint: const Text("none")))
       ],
     );
   }

@@ -1,4 +1,4 @@
-import 'package:flutter_101_app/src/models/reference_table.dart';
+import 'reference_table.dart';
 
 import 'values.dart';
 

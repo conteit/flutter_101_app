@@ -1,5 +1,4 @@
 import '../models/status.dart';
-import '../models/reference_table.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StoryPointSizingBloc {
