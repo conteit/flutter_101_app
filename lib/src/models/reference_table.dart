@@ -73,6 +73,7 @@ final table = ReferenceTable([
   ReferenceTableEntry(Value.small, Value.large, Value.medium, 5),
   ReferenceTableEntry(Value.small, Value.large, Value.large, 8),
   ReferenceTableEntry(Value.medium, Value.small, Value.small, 3),
+  ReferenceTableEntry(Value.medium, Value.small, Value.medium, 5),
   ReferenceTableEntry(Value.medium, Value.small, Value.large, 8),
   ReferenceTableEntry(Value.medium, Value.medium, Value.small, 5),
   ReferenceTableEntry(Value.medium, Value.medium, Value.medium, 5),
